@@ -1,12 +1,31 @@
 package main
 
-import "tfupdate/pkg/utils"
+import (
+	"flag"
+	"log"
+	"tfupdate/pkg/terraform"
+	"tfupdate/pkg/utils"
+)
+
+var version string
+var dir string
 
 func main() {
-	futils := utils.NewFolderUtils("./pkg")
+
+	flag.StringVar(&version, "version", "", "version")
+	flag.StringVar(&dir, "dir", "./", "dir")
+	flag.Parse()
+	println(version, dir)
+
+	futils := utils.NewFolderUtils(dir)
 	folders := futils.ListDir()
 
 	for _, f := range folders {
-		println(f)
+		tfe := terraform.NewExec(version)
+		tf, err := tfe.Init(dir + "/" + f)
+		if err != nil {
+			log.Fatalf("error: %s", err)
+		}
+		tfe.Plan(tf)
 	}
 }
