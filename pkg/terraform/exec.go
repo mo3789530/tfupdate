@@ -24,19 +24,20 @@ type Exec interface {
 }
 
 type exec struct {
-	version string
+	Version  string
+	IsOutput bool
 }
 
 func NewExec(version string) Exec {
 	return &exec{
-		version: version,
+		Version: version,
 	}
 }
 
 func (e *exec) Init(workingDir string) (*tfexec.Terraform, error) {
 	installer := &releases.ExactVersion{
 		Product: product.Terraform,
-		Version: version.Must(version.NewVersion(e.version)),
+		Version: version.Must(version.NewVersion(e.Version)),
 	}
 	execPath, err := installer.Install(context.Background())
 	if err != nil {
@@ -57,8 +58,12 @@ func (e *exec) Plan(tf *tfexec.Terraform) error {
 		log.Printf("error init terraform: %s", err)
 	}
 
-	planOptions := []tfexec.PlanOption{
-		tfexec.Out(outPaht),
+	var planOptions []tfexec.PlanOption
+	if e.IsOutput {
+		planOptions = []tfexec.PlanOption{
+			tfexec.Out(outPaht),
+		}
+
 	}
 
 	resule, err := tf.Plan(context.Background(), planOptions...)
@@ -75,7 +80,6 @@ func (e *exec) Plan(tf *tfexec.Terraform) error {
 }
 
 func (e *exec) Show(tf *tfexec.Terraform, isJson bool) (string, error) {
-
 	if isJson {
 		result, err := e.showJson(tf)
 		if err != err {
@@ -91,7 +95,7 @@ func (e *exec) Show(tf *tfexec.Terraform, isJson bool) (string, error) {
 	return result, nil
 }
 
-func (e *exec) showJson(tf *tfexec.Terraform) (string, error) {
+func (e *exec) showPlanText(tf *tfexec.Terraform) (string, error) {
 	show, err := tf.ShowPlanFileRaw(context.Background(), outPaht)
 	if err != nil {
 		log.Printf("error terraform show: %s", err)
@@ -100,17 +104,32 @@ func (e *exec) showJson(tf *tfexec.Terraform) (string, error) {
 	return show, nil
 }
 
-func (e *exec) showPlanText(tf *tfexec.Terraform) (string, error) {
-	show, err := tf.ShowPlanFile(context.Background(), outPaht)
-	if err != nil {
-		log.Printf("error terraform show: %s", err)
+func (e *exec) showJson(tf *tfexec.Terraform) (string, error) {
+	if !e.IsOutput {
+		show, err := tf.Show(context.Background())
+		if err != nil {
+			log.Printf("error terrform show: %s", err)
+			return "", err
+		}
+		jsonData, err := json.Marshal(show)
+		if err != nil {
+			log.Printf("error convert json %s", err)
+			return "", err
+		}
+		return string(jsonData), nil
+
+	} else {
+		show, err := tf.ShowPlanFile(context.Background(), outPaht)
+		if err != nil {
+			log.Printf("error terraform show: %s", err)
+		}
+		jsonData, err := json.Marshal(show)
+		if err != nil {
+			log.Printf("error convert json %s", err)
+			return "", err
+		}
+		return string(jsonData), nil
 	}
-	jsonData, err := json.Marshal(show)
-	if err != nil {
-		log.Printf("error convert json %s", err)
-		return "", err
-	}
-	return string(jsonData), nil
 }
 
 func (e *exec) Apply(tf *tfexec.Terraform) error {
