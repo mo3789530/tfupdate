@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	outPaht = "./out"
+	outPaht = "/tmp/terraform.out"
 )
 
 type Exec interface {
@@ -99,12 +99,13 @@ func (e *exec) Show(tf *tfexec.Terraform, isJson bool) (string, error) {
 func (e *exec) showPlanText(tf *tfexec.Terraform) (string, error) {
 	log.Print(e.IsOutput)
 	if !e.IsOutput {
-		show, err := tf.Show(context.Background())
+		_, err := tf.Show(context.Background())
 		if err != nil {
 			log.Printf("error terrform show: %s", err)
 			return "", err
 		}
-		return string(show.Values.RootModule.Resources), err
+
+		return "", nil
 	} else {
 		show, err := tf.ShowPlanFileRaw(context.Background(), outPaht)
 		if err != nil {
