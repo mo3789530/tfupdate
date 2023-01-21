@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
     paths:
-      - 'test/*'
+      - 'test/**'
 
 # https://tech.visasq.com/actions-pull-request-comment
 
