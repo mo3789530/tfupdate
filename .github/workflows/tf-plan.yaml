@@ -1,7 +1,5 @@
 # workflowの名前
 name: terraform plan 
-
-# トリガーの設定
 on:
   pull_request:
     types: [ opened, synchronize, reopened ]
