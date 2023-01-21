@@ -11,8 +11,8 @@ var dir string
 
 func main() {
 
-	flag.StringVar(&version, "version", "0.14.9", "version")
-	flag.StringVar(&dir, "dir", "./test/nullresource", "dir")
+	flag.StringVar(&version, "version", "0.14.0", "version")
+	flag.StringVar(&dir, "dir", "./test/nullresource/", "dir")
 	flag.Parse()
 	println(version, dir)
 
@@ -27,10 +27,15 @@ func main() {
 	// 	}
 	// 	tfe.Plan(tf)
 	// }
-	tfe := terraform.NewExec(version)
+	tfe := terraform.NewExec(version, true)
 	tf, err := tfe.Init(dir)
 	if err != nil {
 		log.Fatalf("error: %s", err)
 	}
 	tfe.Plan(tf)
+	show, err := tfe.Show(tf, false)
+	if err != nil {
+		log.Fatalf("error: %s", err)
+	}
+	log.Println(show)
 }

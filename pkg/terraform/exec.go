@@ -28,9 +28,10 @@ type exec struct {
 	IsOutput bool
 }
 
-func NewExec(version string) Exec {
+func NewExec(version string, isOutput bool) Exec {
 	return &exec{
-		Version: version,
+		Version:  version,
+		IsOutput: isOutput,
 	}
 }
 
@@ -96,15 +97,26 @@ func (e *exec) Show(tf *tfexec.Terraform, isJson bool) (string, error) {
 }
 
 func (e *exec) showPlanText(tf *tfexec.Terraform) (string, error) {
-	show, err := tf.ShowPlanFileRaw(context.Background(), outPaht)
-	if err != nil {
-		log.Printf("error terraform show: %s", err)
-		return "", err
+	log.Print(e.IsOutput)
+	if !e.IsOutput {
+		show, err := tf.Show(context.Background())
+		if err != nil {
+			log.Printf("error terrform show: %s", err)
+			return "", err
+		}
+		return string(show.Values.RootModule.Resources), err
+	} else {
+		show, err := tf.ShowPlanFileRaw(context.Background(), outPaht)
+		if err != nil {
+			log.Printf("error terraform show: %s", err)
+			return "", err
+		}
+		return show, nil
 	}
-	return show, nil
 }
 
 func (e *exec) showJson(tf *tfexec.Terraform) (string, error) {
+	log.Print(e.IsOutput)
 	if !e.IsOutput {
 		show, err := tf.Show(context.Background())
 		if err != nil {
