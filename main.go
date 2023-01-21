@@ -11,8 +11,8 @@ var dir string
 
 func main() {
 
-	flag.StringVar(&version, "version", "1.3.7", "version")
-	flag.StringVar(&dir, "dir", "./test", "dir")
+	flag.StringVar(&version, "version", "0.14.9", "version")
+	flag.StringVar(&dir, "dir", "./test/nullresource", "dir")
 	flag.Parse()
 	println(version, dir)
 
