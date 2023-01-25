@@ -2,7 +2,6 @@ package hcl
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 
 	"github.com/hashicorp/hcl/v2"
@@ -20,23 +19,8 @@ type TerraformVersion struct {
 func GetVersions(f *hclwrite.File) (string, error) {
 
 	for _, tf := range findMatchingBlocks(f.Body(), "terraform", []string{}) {
-		log.Print(tf.Body().GetAttribute("required_providers"))
-		p := tf.Body().FirstMatchingBlock("required_providers", []string{})
-		if p == nil {
-			continue
-		} else {
-			log.Print(p.Body().GetAttribute("required_providers"))
+		if tf.Body().GetAttribute("required_version") != nil {
 		}
-
-		// hclAttr, err := getHCLNativeAttribute(p.Body(), u.name)
-		// if err != nil {
-		// 	return "", err
-		// }
-
-		// if hclAttr != nil {
-		// 	break
-		// }
-
 	}
 
 	return "", nil
