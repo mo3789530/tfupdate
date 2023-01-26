@@ -2,6 +2,8 @@ package hcl
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"reflect"
 
 	"github.com/hashicorp/hcl/v2"
@@ -9,21 +11,53 @@ import (
 	"github.com/hashicorp/hcl/v2/hclwrite"
 )
 
-// const (
-// 	filename = "terraform.tf"
-// )
-
-type TerraformVersion struct {
+type Config struct {
+	Meta     Meta      `hcl:"terraform,block"`
+	Provider *Provider `hcl:"provider,block"`
 }
 
-func GetVersions(f *hclwrite.File) (string, error) {
+type Provider struct {
+	Name string `hcl:"name,label"`
+	Host string `hcl:"host,optional"`
+}
 
-	for _, tf := range findMatchingBlocks(f.Body(), "terraform", []string{}) {
-		if tf.Body().GetAttribute("required_version") != nil {
-		}
+type Meta struct {
+	TfVersion    string       `hcl:"required_version"`
+	ReqProviders *ReqProvider `hcl:"required_providers,block"`
+}
+
+type ReqProvider struct {
+	Libvirt ProviderInfo `hcl:"docker,optional"`
+	AWS     ProviderInfo `hcl:"aws,optional"`
+}
+
+type ProviderInfo struct {
+	Source  string `cty:"source"`
+	Version string `cty:"version"`
+}
+
+// https://github.com/orgrim/carcass/blob/fdbbcb85bf4e7628c7dd2c6f5a2b3814726722a6/terraform/config.go
+
+func GetVersions(filepath string) (string, error) {
+	src, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		log.Printf("error read file: %s", err)
+		return "", err
 	}
 
-	return "", nil
+	file, diags := hclwrite.ParseConfig(src, filepath, hcl.InitialPos)
+	if diags.HasErrors() {
+		log.Printf("error hcl parse : %s", diags.Errs()[0])
+		return "", diags.Errs()[0]
+	}
+
+	for _, tf := range findMatchingBlocks(file.Body(), "terraform", []string{}) {
+		if tf.Body().GetAttribute("required_version") != nil {
+			v := tf.Body().GetAttribute("required_version").Expr().BuildTokens(nil).Bytes()
+			return string(v), nil
+		}
+	}
+	return "", fmt.Errorf("error not found terrform block")
 }
 
 func findMatchingBlocks(b *hclwrite.Body, name string, labels []string) []*hclwrite.Block {
