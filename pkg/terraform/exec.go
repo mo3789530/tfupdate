@@ -3,7 +3,6 @@ package terraform
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/hashicorp/go-version"
@@ -18,7 +17,7 @@ const (
 
 type Exec interface {
 	Init(workingDir string) (*tfexec.Terraform, error)
-	Plan(tf *tfexec.Terraform) error
+	Plan(tf *tfexec.Terraform) (bool, error)
 	Show(tf *tfexec.Terraform, isJson bool) (string, error)
 	Apply(tf *tfexec.Terraform) error
 }
@@ -53,10 +52,11 @@ func (e *exec) Init(workingDir string) (*tfexec.Terraform, error) {
 	return tf, nil
 }
 
-func (e *exec) Plan(tf *tfexec.Terraform) error {
+func (e *exec) Plan(tf *tfexec.Terraform) (bool, error) {
 	err := tf.Init(context.Background(), tfexec.Upgrade(true))
 	if err != nil {
 		log.Printf("error init terraform: %s", err)
+		return false, err
 	}
 
 	var planOptions []tfexec.PlanOption
@@ -64,20 +64,14 @@ func (e *exec) Plan(tf *tfexec.Terraform) error {
 		planOptions = []tfexec.PlanOption{
 			tfexec.Out(outPaht),
 		}
-
 	}
 
-	resule, err := tf.Plan(context.Background(), planOptions...)
+	result, err := tf.Plan(context.Background(), planOptions...)
 	if err != nil {
 		log.Printf("error terraform plan: %s", err)
-		return err
+		return result, err
 	}
-
-	if !resule {
-		return fmt.Errorf("error exec plan terraform")
-	}
-
-	return nil
+	return result, nil
 }
 
 func (e *exec) Show(tf *tfexec.Terraform, isJson bool) (string, error) {
