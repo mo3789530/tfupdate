@@ -1,4 +1,4 @@
 resource "local_file" "helloworld" {
-    content  = "hello wodddrldddvvddvdd!"
+    content  = "hello wodddrldddvvddddvdd!"
     filename = "hello.txt"
 }
