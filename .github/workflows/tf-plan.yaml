@@ -22,10 +22,9 @@ jobs:
       - id: no-diff-check
         if: github.event.action != 'synchronize'
         run: echo "diff-count=1" >> $GITHUB_OUTPUT
-      - uses: actions/github-script@v6
+      - id: run 
         if: steps.diff-check.outputs.diff-count > 0 || steps.no-diff-check.outputs.diff-count > 0
-        with:
-          script: |
+        run: |
             $DIR=$(git diff HEAD~1 --name-only --relative=test | xargs dirname | sort | uniq)
             wget https://github.com/mo3789530/tfupdate/releases/download/rc0.0.1/tfupdate
             ./tfupdate -dir=$DIR -relative=test
