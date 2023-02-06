@@ -27,4 +27,6 @@ jobs:
         run: |
             $DIR=git diff ${{ github.event.before }} ${{ github.event.after }}  --name-only --relative=test | xargs dirname | sort | uniq
             wget https://github.com/mo3789530/tfupdate/releases/download/rc0.0.1/tfupdate
-            ./tfupdate -dir=$DIR -relative=test
+            sudo mv tfupdate /use/local/bin
+            sudo chmod +x /usr/local/bin/tfupdate
+            tfupdate -dir=$DIR -relative=test
