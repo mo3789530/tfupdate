@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"regexp"
 	"strings"
 	myhcl "tfupdate/pkg/hcl"
 	"tfupdate/pkg/terraform"
@@ -15,7 +16,7 @@ var relative string
 func main() {
 
 	flag.StringVar(&version, "version", "0.14.0", "version")
-	flag.StringVar(&dir, "dir", "mongo", "dir")
+	flag.StringVar(&dir, "dir", "nullresource", "dir")
 	flag.StringVar(&relative, "relative", "test", "relative")
 	flag.Parse()
 	// println(version, dir)
@@ -24,14 +25,20 @@ func main() {
 	for _, v := range dirs {
 		folderpath := relative + "/" + v
 		filepath := folderpath + "/terraform.tf"
+
 		log.Print(filepath)
-		version, err := myhcl.GetVersions(filepath)
+
+		strVersion, err := myhcl.GetVersions(filepath)
 		if err != nil {
 			log.Fatalf("err %s", err)
 		}
+		rex := regexp.MustCompile("[0-9.]+")
+		version = rex.FindString(strVersion)
+
 		log.Printf("%s using terrafrom version: %s", v, version)
+
 		exec := terraform.NewExec(version, true)
-		tf, err := exec.Init(v)
+		tf, err := exec.Init(folderpath)
 		if err != nil {
 			log.Printf("error init %s", err)
 		}
@@ -42,31 +49,13 @@ func main() {
 		if !isdiffer {
 			log.Printf("no changes")
 			continue
+		} else {
+			show, err := exec.Show(tf, false)
+			if err != nil {
+				log.Panicf("err show %s", err)
+			}
+			log.Println(show)
 		}
-		exec.Show(tf, false)
 	}
-
-	// futils := utils.NewFolderUtils(dir)
-	// folders := futils.ListDir()
-
-	// for _, f := range folders {
-	// 	tfe := terraform.NewExec(version)
-	// 	tf, err := tfe.Init(dir + "/" + f)
-	// 	if err != nil {
-	// 		log.Fatalf("error: %s", err)
-	// 	}
-	// 	tfe.Plan(tf)
-	// }
-	// tfe := terraform.NewExec(version, true)
-	// tf, err := tfe.Init(dir)
-	// if err != nil {
-	// 	log.Fatalf("error: %s", err)
-	// }
-	// tfe.Plan(tf)
-	// show, err := tfe.Show(tf, false)
-	// if err != nil {
-	// 	log.Fatalf("error: %s", err)
-	// }
-	// log.Println(show)
 
 }
