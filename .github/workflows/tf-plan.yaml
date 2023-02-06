@@ -26,9 +26,4 @@ jobs:
         if: steps.diff-check.outputs.diff-count > 0 || steps.no-diff-check.outputs.diff-count > 0
         with:
           script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `hoge ディレクトリ配下のファイルが編集されました。`
-            })
+            echo $GITHUB_OUTPUT
