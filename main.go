@@ -10,17 +10,21 @@ import (
 
 var version string
 var dir string
+var relative string
 
 func main() {
 
 	flag.StringVar(&version, "version", "0.14.0", "version")
-	flag.StringVar(&dir, "dir", "./test/nullresource,./test/mongo", "dir")
+	flag.StringVar(&dir, "dir", "mongo", "dir")
+	flag.StringVar(&relative, "relative", "test", "relative")
 	flag.Parse()
-	println(version, dir)
+	// println(version, dir)
 
-	dirs := strings.Split(dir, ",")
+	dirs := strings.Split(dir, " ")
 	for _, v := range dirs {
-		filepath := v + "/terraform.tf"
+		folderpath := relative + "/" + v
+		filepath := folderpath + "/terraform.tf"
+		log.Print(filepath)
 		version, err := myhcl.GetVersions(filepath)
 		if err != nil {
 			log.Fatalf("err %s", err)
