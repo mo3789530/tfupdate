@@ -2,3 +2,6 @@ test/*/.terraform/
 test/*/.terraform.lock.hcl
 tfupdate
 *out
+test/plan-data/terraform.tfstate:Zone.Identifier
+test/plan-data/plan.tfplan:Zone.Identifier
+test/plan-data/plan.tfplan
