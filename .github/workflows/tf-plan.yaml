@@ -30,4 +30,4 @@ jobs:
             sudo mv tfupdate /usr/local/bin
             sudo chmod +x /usr/local/bin/tfupdate
             echo $DIR
-            tfupdate wapper plan --dirs=$DIR --relative=test
+            tfupdate wapper plan --dirs=$DIR --relative=test/
