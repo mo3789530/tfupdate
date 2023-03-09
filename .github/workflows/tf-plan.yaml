@@ -25,7 +25,7 @@ jobs:
       - id: run 
         if: steps.diff-check.outputs.diff-count > 0 || steps.no-diff-check.outputs.diff-count > 0
         run: |
-            $DIR=git diff ${{ github.event.before }} ${{ github.event.after }}  --name-only --relative=test | xargs dirname | sort | uniq
+            DIR="$(git diff ${{ github.event.before }} ${{ github.event.after }} --name-only --relative=test | xargs dirname | sort | uniq)"
             wget https://github.com/mo3789530/tfupdate/releases/download/rc0.0.2/tfupdate
             sudo mv tfupdate /usr/local/bin
             sudo chmod +x /usr/local/bin/tfupdate
