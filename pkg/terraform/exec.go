@@ -91,7 +91,7 @@ func (e *exec) Show(tf *tfexec.Terraform, isJson bool) (string, error) {
 }
 
 func (e *exec) showPlanText(tf *tfexec.Terraform) (string, error) {
-	log.Print(e.IsOutput)
+	// log.Print(e.IsOutput)
 	if !e.IsOutput {
 		_, err := tf.Show(context.Background())
 		if err != nil {

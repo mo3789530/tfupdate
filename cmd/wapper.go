@@ -51,10 +51,10 @@ func NewWapperCommand() *cobra.Command {
 
 func runPlan(dirs []string, relative string) error {
 	for _, v := range dirs {
-		folderpath := relative + "/" + v
+		folderpath := relative + v
 		filepath := folderpath + "/terraform.tf"
 
-		log.Print(filepath)
+		log.Printf("target path: %s \n", filepath)
 
 		strVersion, err := myhcl.GetVersions(filepath)
 		if err != nil {
