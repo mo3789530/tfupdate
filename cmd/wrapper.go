@@ -11,9 +11,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewWapperCommand() *cobra.Command {
+func NewWrapperCommand() *cobra.Command {
 	var command = &cobra.Command{
-		Use:   "wapper",
+		Use:   "tf",
 		Short: "Run terraform command",
 		// Run: func(cmd *cobra.Command, args []string) {
 		// },
@@ -25,8 +25,8 @@ func NewWapperCommand() *cobra.Command {
 
 			switch args[0] {
 			case "plan":
-				fmt.Println(dirs)
-				fmt.Println(relative)
+				//fmt.Println(dirs)
+				//fmt.Println(relative)
 				return runPlan(dirs, relative)
 			case "apply":
 				runApply(dirs, relative)
