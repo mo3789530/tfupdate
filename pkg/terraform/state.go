@@ -92,49 +92,52 @@ func (t *tfstate) CreateDoc(path string, jsonData *string) error {
 		return err
 	}
 
-	tmpl, err := getTemplate("md")
-	if err != nil {
-		log.Printf("error get template %s", err)
-		return err
-	}
+	// tmpl, err := getTemplate("md")
+	// if err != nil {
+	// 	log.Printf("error get template %s", err)
+	// 	return err
+	// }
 
-	n, err := template.New("md.tmpl").Funcs(template.FuncMap{
-		"value":       getValue,
-		"dataType":    dataType,
-		"prettyPrint": prettyPrint,
-	}).ParseFS(templateFS, tmpl)
+	// n, err := template.New("md.tmpl").Funcs(template.FuncMap{
+	// 	"value":       getValue,
+	// 	"dataType":    dataType,
+	// 	"prettyPrint": prettyPrint,
+	// }).ParseFS(templateFS, tmpl)
 
-	if err != nil {
-		log.Printf("error new template %s", err)
-		return err
-	}
+	// if err != nil {
+	// 	log.Printf("error new template %s", err)
+	// 	return err
+	// }
 
-	// fmt.Println(state.Values.RootModule.Resources)
+	// // fmt.Println(state.Values.RootModule.Resources)
 	fmt.Println("aaaa")
 	for _, v := range state.Values.RootModule.Resources {
-		a := fmt.Sprintf("%v", v.AttributeValues)
-		fmt.Println(a)
+		for k, v := range v.AttributeValues {
+			if v != nil {
+				fmt.Printf("%s %s \n", k, v)
+			} else {
+				fmt.Printf("%s %s \n", k, "null")
+			}
+
+		}
 		b, _ := json.Marshal(v.AttributeValues)
 		fmt.Println(string(b))
-		for _, v2 := range v.AttributeValues {
-			fmt.Println(v2)
-		}
 	}
 
-	outputs := map[string]*tfjson.StateOutput{}
-	if state.Values != nil {
-		outputs = state.Values.Outputs
-	}
+	// outputs := map[string]*tfjson.StateOutput{}
+	// if state.Values != nil {
+	// 	outputs = state.Values.Outputs
+	// }
 
-	err = n.Execute(os.Stdout, data{
-		Outputs:     outputs,
-		Description: "test",
-	})
+	// err = n.Execute(os.Stdout, data{
+	// 	Outputs:     outputs,
+	// 	Description: "test",
+	// })
 
-	if err != nil {
-		log.Printf("error %s", err)
-		return err
-	}
+	// if err != nil {
+	// 	log.Printf("error %s", err)
+	// 	return err
+	// }
 
 	return nil
 

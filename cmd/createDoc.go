@@ -21,7 +21,6 @@ func NewCreateDocCommand() *cobra.Command {
 			// jsonData, _ := cmd.Flags().GetString("jsonDaa")
 			switch t {
 			case "plan":
-				fmt.Println(t)
 				state := terraform.NewTfState("md")
 				state.CreateDoc(path, nil)
 			case "state":
