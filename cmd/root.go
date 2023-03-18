@@ -28,4 +28,5 @@ func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.AddCommand(NewVersionCommand())
 	rootCmd.AddCommand(NewWrapperCommand())
+	rootCmd.AddCommand(NewHclCommand())
 }
