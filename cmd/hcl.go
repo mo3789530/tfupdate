@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	myhcl "tfupdate/pkg/hcl"
 
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/gohcl"
+	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/spf13/cobra"
 )
 
@@ -43,21 +45,46 @@ func NewHclCommand() *cobra.Command {
 }
 
 func Loads(filepath string) error {
-	obj, err := myhcl.HclToJsonString(filepath)
-	if err != nil {
-		return err
-	}
+	// obj, err := myhcl.HclToJson(filepath)
+	// if err != nil {
+	// 	return err
+	// }
 
-	fmt.Println(obj)
+	// fmt.Println(obj)
+
+	config := `
+        resource "aws_instance" "web" {
+            ami           = "ami-0c55b159cbfafe1f0"
+            instance_type = "t2.micro"
+        }
+    `
+	file, err := hclsyntax.ParseConfig([]byte(config), "", hcl.Pos{Line: 1, Column: 1})
+	if err != nil {
+		panic(err)
+	}
+	var result interface{}
+	gohcl.DecodeBody(file.Body, nil, &result)
+	if err != nil {
+		panic(err)
+	}
+	print(string(file.Bytes))
+
+	// // 抽象構文木から JSON 文字列を生成
+	// jsonBytes, err := file.Body
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// fmt.Println(string(jsonBytes))
 	return nil
 }
 
 func Dumps(filepath string) error {
-	obj, err := myhcl.JsonToHcl(filepath)
-	if err != nil {
-		return err
-	}
+	// obj, err := myhcl.JsonToHcl(filepath)
+	// if err != nil {
+	// 	return err
+	// }
 
-	fmt.Println(obj)
+	// fmt.Println(obj)
 	return nil
 }
