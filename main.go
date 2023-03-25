@@ -21,8 +21,8 @@ THE SOFTWARE.
 */
 package main
 
-import "tfupdate/cmd"
+// import "tfupdate/cmd"
 
-func main() {
-	cmd.Execute()
-}
+// func main() {
+// 	cmd.Execute()
+// }
