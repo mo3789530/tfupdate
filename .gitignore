@@ -2,3 +2,5 @@ test/*/.terraform/
 test/*/.terraform.lock.hcl
 tfupdate
 *out
+test/nullresource/hello.txt
+*.tfstate
