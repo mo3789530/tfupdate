@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"log"
 
+	myhcl "tfupdate/pkg/hcl"
+
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hc-install/product"
 	"github.com/hashicorp/hc-install/releases"
@@ -20,6 +22,7 @@ type Exec interface {
 	Plan(tf *tfexec.Terraform) (bool, error)
 	Show(tf *tfexec.Terraform, isJson bool) (string, error)
 	Apply(tf *tfexec.Terraform) error
+	State(tf *tfexec.Terraform, isRemote bool) (string, error)
 }
 
 type exec struct {
@@ -146,4 +149,29 @@ func (e *exec) Apply(tf *tfexec.Terraform) error {
 		return err
 	}
 	return nil
+}
+
+func (e *exec) State(tf *tfexec.Terraform, isRemote bool) (string, error) {
+	log.Println("terraform state")
+	if isRemote {
+		var pullOptions tfexec.StatePullOption
+		_, err := tf.StatePull(context.Background(), pullOptions)
+		if err != nil {
+			log.Printf("error terraform pull %s", err)
+			return "", err
+		}
+	}
+
+	state, err := tf.ShowStateFile(context.Background(), "terraform.tfstate")
+	if err != nil {
+		log.Printf("error terraform state file %s", err)
+		return "", err
+	}
+
+	myhcl.ShowStateFileJson(state)
+
+	myhcl.ShowStateFileRaw(state)
+
+	return "", nil
+
 }
