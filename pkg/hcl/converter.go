@@ -15,71 +15,100 @@ func ShowStateFileRaw(state *tfjson.State) {
 	file := hclwrite.NewEmptyFile()
 	body := file.Body()
 
+	writeBodyHcl(body, state.Values.RootModule.Resources)
 	for _, child := range state.Values.RootModule.ChildModules {
-		for _, v := range child.ChildModules[0].Resources {
-			// write comment
-			commentToken := hclwrite.Token{
-				Type:  hclsyntax.TokenComment,
-				Bytes: []byte(fmt.Sprintf("# %v.%v", v.Type, v.Name)),
-			}
-			body.AppendUnstructuredTokens(hclwrite.Tokens{&commentToken})
-			body.AppendNewline()
-			block := body.AppendNewBlock("resources", []string{v.Type, v.Name})
-			blockBody := block.Body()
-			for k, atter := range v.AttributeValues {
-				if atter == nil {
-					continue
-				}
-				blockBody.SetAttributeRaw(k, hclwrite.TokensForValue(cty.StringVal(fmt.Sprintf("%v", atter))))
-
-			}
-			body.AppendNewline()
+		for _, grandChild := range child.ChildModules {
+			writeBodyHcl(body, grandChild.Resources)
 		}
-	}
-
-	for _, v := range state.Values.RootModule.Resources {
-		log.Panicln(v.Type)
-		// write comment
-		commentToken := hclwrite.Token{
-			Type:  hclsyntax.TokenComment,
-			Bytes: []byte(fmt.Sprintf("# %v.%v", v.Type, v.Name)),
-		}
-		body.AppendUnstructuredTokens(hclwrite.Tokens{&commentToken})
-		body.AppendNewline()
-		// block := body.AppendNewBlock("resources", []string{v.Type, v.Name})
-		// blockBody := block.Body()
-		// for k, atter := range v.AttributeValues {
-		// 	if atter == nil {
-		// 		continue
-		// 	}
-		// 	blockBody.SetAttributeRaw(k, hclwrite.TokensForValue(cty.StringVal(fmt.Sprintf("%v", atter))))
-
-		// }
-		body.AppendNewline()
+		writeBodyHcl(body, child.Resources)
 	}
 	fmt.Println(string(file.Bytes()))
 }
 
-func writeHcl(body *hclwrite.Body, resources []*tfjson.StateResource) error {
+func writeBodyHcl(body *hclwrite.Body, resources []*tfjson.StateResource) {
 	for _, v := range resources {
-		log.Panicln(v.Type)
 		// write comment
 		commentToken := hclwrite.Token{
 			Type:  hclsyntax.TokenComment,
-			Bytes: []byte(fmt.Sprintf("# %v.%v", v.Type, v.Name)),
+			Bytes: []byte(fmt.Sprintf("# %v", v.Address)),
 		}
 		body.AppendUnstructuredTokens(hclwrite.Tokens{&commentToken})
 		body.AppendNewline()
-		block := body.AppendNewBlock("resources", []string{v.Type, v.Name})
+		// write resource
+		block := body.AppendNewBlock("resource", []string{v.Type, v.Name})
 		blockBody := block.Body()
-		for k, atter := range v.AttributeValues {
-			if atter == nil {
+		for k, attr := range v.AttributeValues {
+			if attr == nil {
 				continue
 			}
-			blockBody.SetAttributeRaw(k, hclwrite.TokensForValue(cty.StringVal(fmt.Sprintf("%v", atter))))
+			switch v := attr.(type) {
+			case []interface{}:
+				writeBodyBodyHcl(blockBody, k, v)
+			case map[string]interface{}:
+				if len(v) < 1 {
+					// empty objects
+					blockBody.SetAttributeRaw(k, hclwrite.Tokens{
+						&hclwrite.Token{
+							Bytes: []byte(fmt.Sprintf("%v", "{}")),
+							Type:  hclsyntax.TokenAnd,
+						},
+					})
+				} else {
+					/*
+						sample output
+						tags_all = {
+						    aaa = "bbb"
+						}
+					*/
+					for kk, vv := range v {
+						blockBody.SetAttributeValue(k, cty.ObjectVal(map[string]cty.Value{
+							kk: cty.StringVal(fmt.Sprintf("%v", vv)),
+						}))
+					}
+				}
+
+			default:
+				if v != "" {
+					blockBody.SetAttributeRaw(k, hclwrite.TokensForValue(cty.StringVal(fmt.Sprintf("%v", v))))
+				}
+			}
 
 		}
 		body.AppendNewline()
+	}
+}
+
+// write block
+func writeBodyBodyHcl(body *hclwrite.Body, key string, values []interface{}) {
+	if len(values) < 1 {
+		return
+	}
+
+	block := body.AppendNewBlock(key, []string{})
+	blockBody := block.Body()
+	for _, value := range values {
+		writeAttribute(blockBody, value)
+	}
+
+}
+
+// write attribute
+func writeAttribute(blockBody *hclwrite.Body, value interface{}) {
+	switch vt := value.(type) {
+	case map[string]interface{}:
+		for k, v := range vt {
+			switch vv := v.(type) {
+			case []interface{}:
+				writeBodyBodyHcl(blockBody, k, vv)
+			default:
+				blockBody.SetAttributeRaw(k, hclwrite.TokensForValue(cty.StringVal(fmt.Sprintf("%v", vv))))
+			}
+		}
+	case []interface{}:
+		for _, v := range vt {
+			writeAttribute(blockBody, v)
+		}
+	default:
 	}
 
 }
