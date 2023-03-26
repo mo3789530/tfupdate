@@ -2,8 +2,9 @@ package hcl
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
+
 	"reflect"
 
 	"github.com/hashicorp/hcl/v2"
@@ -38,7 +39,7 @@ type ProviderInfo struct {
 // https://github.com/orgrim/carcass/blob/fdbbcb85bf4e7628c7dd2c6f5a2b3814726722a6/terraform/config.go
 
 func GetVersions(filepath string) (string, error) {
-	src, err := ioutil.ReadFile(filepath)
+	src, err := os.ReadFile(filepath)
 	if err != nil {
 		log.Printf("error read file: %s", err)
 		return "", err
