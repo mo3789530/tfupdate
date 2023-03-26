@@ -168,8 +168,9 @@ func (e *exec) State(tf *tfexec.Terraform, isRemote bool) (string, error) {
 		return "", err
 	}
 
-	myhcl.ShowStateFileRaw(state)
+	myhcl.ShowStateFileJson(state)
 
+	myhcl.ShowStateFileRaw(state)
 
 	return "", nil
 

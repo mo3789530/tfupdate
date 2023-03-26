@@ -4,3 +4,4 @@ tfupdate
 *out
 test/nullresource/hello.txt
 *.tfstate
+*.terraform.tfstate.lock.info
