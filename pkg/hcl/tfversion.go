@@ -5,8 +5,6 @@ import (
 	"log"
 	"os"
 
-	"reflect"
-
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 )
@@ -25,28 +23,11 @@ func GetVersions(filepath string) (string, error) {
 		return "", diags.Errs()[0]
 	}
 
-	for _, tf := range findMatchingBlocks(file.Body(), "terraform", []string{}) {
+	for _, tf := range FindMatchingBlocks(file.Body(), "terraform", []string{}) {
 		if tf.Body().GetAttribute("required_version") != nil {
 			v := tf.Body().GetAttribute("required_version").Expr().BuildTokens(nil).Bytes()
 			return string(v), nil
 		}
 	}
 	return "", fmt.Errorf("error not found terrform block")
-}
-
-func findMatchingBlocks(b *hclwrite.Body, name string, labels []string) []*hclwrite.Block {
-	var matched []*hclwrite.Block
-	for _, block := range b.Blocks() {
-		if name == block.Type() {
-			labelsName := block.Labels()
-			if len(labels) == 0 && len(labelsName) == 0 {
-				matched = append(matched, block)
-				continue
-			}
-			if reflect.DeepEqual(labels, name) {
-				matched = append(matched, block)
-			}
-		}
-	}
-	return matched
 }

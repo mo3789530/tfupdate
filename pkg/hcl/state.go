@@ -43,7 +43,7 @@ func writeBodyHcl(body *hclwrite.Body, resources []*tfjson.StateResource) {
 			}
 			switch v := attr.(type) {
 			case []interface{}:
-				writeBodyBodyHcl(blockBody, k, v)
+				WriteBodyBodyHcl(blockBody, k, v)
 			case map[string]interface{}:
 				if len(v) < 1 {
 					// empty objects
@@ -76,41 +76,6 @@ func writeBodyHcl(body *hclwrite.Body, resources []*tfjson.StateResource) {
 		}
 		body.AppendNewline()
 	}
-}
-
-// write block
-func writeBodyBodyHcl(body *hclwrite.Body, key string, values []interface{}) {
-	if len(values) < 1 {
-		return
-	}
-
-	block := body.AppendNewBlock(key, []string{})
-	blockBody := block.Body()
-	for _, value := range values {
-		writeAttribute(blockBody, value)
-	}
-
-}
-
-// write attribute
-func writeAttribute(blockBody *hclwrite.Body, value interface{}) {
-	switch vt := value.(type) {
-	case map[string]interface{}:
-		for k, v := range vt {
-			switch vv := v.(type) {
-			case []interface{}:
-				writeBodyBodyHcl(blockBody, k, vv)
-			default:
-				blockBody.SetAttributeRaw(k, hclwrite.TokensForValue(cty.StringVal(fmt.Sprintf("%v", vv))))
-			}
-		}
-	case []interface{}:
-		for _, v := range vt {
-			writeAttribute(blockBody, v)
-		}
-	default:
-	}
-
 }
 
 func ShowStateFileJson(state *tfjson.State) {
