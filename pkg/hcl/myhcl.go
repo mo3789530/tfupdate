@@ -1,19 +1,35 @@
 package hcl
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"reflect"
 
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/zclconf/go-cty/cty"
 )
 
-func HclToJson() {
+func HclToJson(hcl string) {
+	
 
 }
 
-func JsonToHcl() {
+func JsonToHcl(jsonStr string) string {
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &data); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
+	f := hclwrite.NewFile()
+	rootBody := f.Body()
+	for k, v := range data {
+		WriteBodyBodyHcl(rootBody, k, v.([]interface{}))
+	}
+
+	// fmt.Println(string(f.Bytes()))
+	return string(f.Bytes())
 }
 
 func FindMatchingBlocks(b *hclwrite.Body, name string, labels []string) []*hclwrite.Block {

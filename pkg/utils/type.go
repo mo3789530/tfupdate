@@ -1,7 +1,10 @@
 package utils
 
-import "reflect"
+import (
+	"fmt"
+	"reflect"
+)
 
-func Type(t interface{}) reflect.Type {
-	return reflect.TypeOf(t)
+func TypeString(t interface{}) string {
+	return fmt.Sprintf("%v", reflect.TypeOf(t))
 }
