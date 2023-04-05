@@ -3,16 +3,28 @@ package hcl
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 
 	"github.com/hashicorp/hcl/v2/hclwrite"
+	hcl2json "github.com/tmccombs/hcl2json/convert"
 	"github.com/zclconf/go-cty/cty"
 )
 
-func HclToJson(hcl string) {
-	
+func HclBytesToJson(hclBytes []byte) {
 
+	res, err := hcl2json.Bytes(hclBytes, "", hcl2json.Options{})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Println(string(res))
+
+}
+
+func HclStringToJson(hcl string) {
+	HclBytesToJson([]byte(hcl))
 }
 
 func JsonToHcl(jsonStr string) string {
