@@ -23,33 +23,8 @@ package main
 
 import (
 	"tfupdate/cmd"
-	myhcl "tfupdate/pkg/hcl"
 )
 
 func main() {
-
-	jsondata := `
-	{
-		"locals": [
-		  {
-			"ecs": [
-			  {
-				"settings": [
-				  {
-					"set1": "aaa"
-				  }
-				]
-			  }
-			],
-			"env": [
-			  {
-				"region": "aaa"
-			  }
-			]
-		  }
-		]
-	  }
-	`
-	myhcl.JsonToHcl(jsondata)
 	cmd.Execute()
 }
