@@ -22,34 +22,9 @@ THE SOFTWARE.
 package main
 
 import (
-	"tfupdate/cmd"
-	myhcl "tfupdate/pkg/hcl"
+	"github.com/mo3789530/tfupdate/cmd"
 )
 
 func main() {
-
-	jsondata := `
-	{
-		"locals": [
-		  {
-			"ecs": [
-			  {
-				"settings": [
-				  {
-					"set1": "aaa"
-				  }
-				]
-			  }
-			],
-			"env": [
-			  {
-				"region": "aaa"
-			  }
-			]
-		  }
-		]
-	  }
-	`
-	myhcl.JsonToHcl(jsondata)
 	cmd.Execute()
 }

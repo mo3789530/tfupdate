@@ -1,9 +1,11 @@
-package hcl
+package terraform
 
 import (
 	"fmt"
 	"log"
 	"os"
+
+	myhcl "github.com/mo3789530/tfupdate/pkg/hcl"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -23,7 +25,7 @@ func GetVersions(filepath string) (string, error) {
 		return "", diags.Errs()[0]
 	}
 
-	for _, tf := range FindMatchingBlocks(file.Body(), "terraform", []string{}) {
+	for _, tf := range myhcl.FindMatchingBlocks(file.Body(), "terraform", []string{}) {
 		if tf.Body().GetAttribute("required_version") != nil {
 			v := tf.Body().GetAttribute("required_version").Expr().BuildTokens(nil).Bytes()
 			return string(v), nil

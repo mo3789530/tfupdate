@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"log"
 
-	myhcl "tfupdate/pkg/hcl"
-
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hc-install/product"
 	"github.com/hashicorp/hc-install/releases"
@@ -22,7 +20,7 @@ type Exec interface {
 	Plan(tf *tfexec.Terraform, isUpgrade bool) (bool, error)
 	Show(tf *tfexec.Terraform, isJson bool) (string, error)
 	Apply(tf *tfexec.Terraform) error
-	State(tf *tfexec.Terraform, isRemote bool) (string, error)
+	State(tf *tfexec.Terraform, isRemote bool, isJson bool) (string, error)
 }
 
 type exec struct {
@@ -151,7 +149,7 @@ func (e *exec) Apply(tf *tfexec.Terraform) error {
 	return nil
 }
 
-func (e *exec) State(tf *tfexec.Terraform, isRemote bool) (string, error) {
+func (e *exec) State(tf *tfexec.Terraform, isRemote bool, isJson bool) (string, error) {
 	log.Println("terraform state")
 	if isRemote {
 		var pullOptions tfexec.StatePullOption
@@ -168,10 +166,10 @@ func (e *exec) State(tf *tfexec.Terraform, isRemote bool) (string, error) {
 		return "", err
 	}
 
-	myhcl.ShowStateFileJson(state)
-
-	myhcl.ShowStateFileRaw(state)
-
-	return "", nil
+	if isJson {
+		return ShowStateFileJson(state), nil
+	} else {
+		return ShowStateFileRaw(state), nil
+	}
 
 }

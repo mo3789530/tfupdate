@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"tfupdate/pkg/terraform"
 
-	myhcl "tfupdate/pkg/hcl"
+	"github.com/mo3789530/tfupdate/pkg/terraform"
 
 	"github.com/spf13/cobra"
 )
@@ -58,7 +57,7 @@ func runPlan(dirs []string, relative string) error {
 
 		log.Printf("target path: %s \n", filepath)
 
-		strVersion, err := myhcl.GetVersions(filepath)
+		strVersion, err := terraform.GetVersions(filepath)
 		if err != nil {
 			log.Fatalf("err %s", err)
 			return err
@@ -101,7 +100,7 @@ func runApply(dirs []string, relative string) error {
 
 		log.Printf("target path: %s \n", filepath)
 
-		strVersion, err := myhcl.GetVersions(filepath)
+		strVersion, err := terraform.GetVersions(filepath)
 		if err != nil {
 			log.Fatalf("err %s", err)
 			return err
@@ -151,7 +150,7 @@ func runState(dirs []string, relative string) error {
 
 		log.Printf("target path: %s \n", filepath)
 
-		strVersion, err := myhcl.GetVersions(filepath)
+		strVersion, err := terraform.GetVersions(filepath)
 		if err != nil {
 			log.Fatalf("err %s", err)
 			return err
@@ -191,7 +190,7 @@ func runState(dirs []string, relative string) error {
 			}
 		}
 
-		ret, err := exec.State(tf, false)
+		ret, err := exec.State(tf, false, false)
 		if err != nil {
 			log.Printf("err state %s \n", err)
 			return err
