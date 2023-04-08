@@ -19,7 +19,7 @@ const (
 
 type Exec interface {
 	Init(workingDir string) (*tfexec.Terraform, error)
-	Plan(tf *tfexec.Terraform) (bool, error)
+	Plan(tf *tfexec.Terraform, isUpgrade bool) (bool, error)
 	Show(tf *tfexec.Terraform, isJson bool) (string, error)
 	Apply(tf *tfexec.Terraform) error
 	State(tf *tfexec.Terraform, isRemote bool) (string, error)
@@ -55,8 +55,8 @@ func (e *exec) Init(workingDir string) (*tfexec.Terraform, error) {
 	return tf, nil
 }
 
-func (e *exec) Plan(tf *tfexec.Terraform) (bool, error) {
-	err := tf.Init(context.Background(), tfexec.Upgrade(false))
+func (e *exec) Plan(tf *tfexec.Terraform, isUpgrade bool) (bool, error) {
+	err := tf.Init(context.Background(), tfexec.Upgrade(isUpgrade))
 	if err != nil {
 		log.Printf("error init terraform: %s", err)
 		return false, err
