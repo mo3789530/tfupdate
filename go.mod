@@ -1,4 +1,4 @@
-module tfupdate
+module github.com/mo3789530/tfupdate
 
 go 1.20
 
