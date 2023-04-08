@@ -74,7 +74,7 @@ func runPlan(dirs []string, relative string) error {
 			log.Printf("error init %s", err)
 			return err
 		}
-		isdiffer, err := exec.Plan(tf)
+		isdiffer, err := exec.Plan(tf, false)
 		if err != nil {
 			log.Printf("err plan %s", err)
 			return err
@@ -117,7 +117,7 @@ func runApply(dirs []string, relative string) error {
 			log.Printf("error init %s", err)
 			return err
 		}
-		isdiffer, err := exec.Plan(tf)
+		isdiffer, err := exec.Plan(tf, false)
 		if err != nil {
 			log.Printf("err plan %s \n", err)
 			return err
@@ -167,7 +167,7 @@ func runState(dirs []string, relative string) error {
 			log.Printf("error init %s", err)
 			return err
 		}
-		isdiffer, err := exec.Plan(tf)
+		isdiffer, err := exec.Plan(tf, false)
 		if err != nil {
 			log.Printf("err plan %s \n", err)
 			return err
