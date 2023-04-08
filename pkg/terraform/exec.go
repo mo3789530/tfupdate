@@ -56,7 +56,7 @@ func (e *exec) Init(workingDir string) (*tfexec.Terraform, error) {
 }
 
 func (e *exec) Plan(tf *tfexec.Terraform) (bool, error) {
-	err := tf.Init(context.Background(), tfexec.Upgrade(true))
+	err := tf.Init(context.Background(), tfexec.Upgrade(false))
 	if err != nil {
 		log.Printf("error init terraform: %s", err)
 		return false, err
